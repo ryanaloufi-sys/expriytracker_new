@@ -25,91 +25,41 @@ jobs:
           flutter-version: '3.19.x'
           channel: 'stable'
 
-      - name: Force Create Android V2 Structure
+      - name: Initialize Android V2 Scaffold
         run: |
           mkdir -p android/app/src/main/kotlin/com/example/expriytracker_new
           
-          # إنشاء ملف الـ Manifest مع دعم الـ V2
-          cat << 'EOF' > android/app/src/main/AndroidManifest.xml
-          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-              <application
-                  android:label="expriytracker_new"
-                  android:name="${applicationName}"
-                  android:icon="@mipmap/ic_launcher">
-                  <meta-data
-                      android:name="flutterEmbedding"
-                      android:value="2" />
-                  <activity
-                      android:name=".MainActivity"
-                      android:exported="true"
-                      android:launchMode="singleTop"
-                      android:theme="@style/LaunchTheme"
-                      android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
-                      android:hardwareAccelerated="true"
-                      android:windowSoftInputMode="adjustResize">
-                      <meta-data
-                          android:name="io.flutter.embedding.android.NormalTheme"
-                          android:resource="@style/NormalTheme" />
-                      <intent-filter>
-                          <action android:name="android.intent.action.MAIN"/>
-                          <category android:name="android.intent.category.LAUNCHER"/>
-                      </intent-filter>
-                  </activity>
-              </application>
-          </manifest>
-          EOF
+          # 1. AndroidManifest.xml
+          echo '<manifest xmlns:android="http://schemas.android.com/apk/res/android">' > android/app/src/main/AndroidManifest.xml
+          echo '    <application android:label="expriytracker_new" android:name="${applicationName}" android:icon="@mipmap/ic_launcher">' >> android/app/src/main/AndroidManifest.xml
+          echo '        <meta-data android:name="flutterEmbedding" android:value="2" />' >> android/app/src/main/AndroidManifest.xml
+          echo '        <activity android:name=".MainActivity" android:exported="true" android:launchMode="singleTop" android:theme="@style/LaunchTheme" android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode" android:hardwareAccelerated="true" android:windowSoftInputMode="adjustResize">' >> android/app/src/main/AndroidManifest.xml
+          echo '            <meta-data android:name="io.flutter.embedding.android.NormalTheme" android:resource="@style/NormalTheme" />' >> android/app/src/main/AndroidManifest.xml
+          echo '            <intent-filter>' >> android/app/src/main/AndroidManifest.xml
+          echo '                <action android:name="android.intent.action.MAIN"/>' >> android/app/src/main/AndroidManifest.xml
+          echo '                <category android:name="android.intent.category.LAUNCHER"/>' >> android/app/src/main/AndroidManifest.xml
+          echo '            </intent-filter>' >> android/app/src/main/AndroidManifest.xml
+          echo '        </activity>' >> android/app/src/main/AndroidManifest.xml
+          echo '    </application>' >> android/app/src/main/AndroidManifest.xml
+          echo '</manifest>' >> android/app/src/main/AndroidManifest.xml
 
-          # إنشاء ملف الـ MainActivity
-          cat << 'EOF' > android/app/src/main/kotlin/com/example/expriytracker_new/MainActivity.kt
-          package com.example.expriytracker_new
+          # 2. MainActivity.kt
+          echo 'package com.example.expriytracker_new' > android/app/src/main/kotlin/com/example/expriytracker_new/MainActivity.kt
+          echo 'import io.flutter.embedding.android.FlutterActivity' >> android/app/src/main/kotlin/com/example/expriytracker_new/MainActivity.kt
+          echo 'class MainActivity: FlutterActivity() {}' >> android/app/src/main/kotlin/com/example/expriytracker_new/MainActivity.kt
 
-          import io.flutter.embedding.android.FlutterActivity
-
-          class MainActivity: FlutterActivity() {
-          }
-          EOF
-
-          # إنشاء ملف الـ build.gradle الخاص بأندرويد
-          cat << 'EOF' > android/app/build.gradle
-          plugins {
-              id "com.android.application"
-              id "kotlin-android"
-              id "dev.flutter.flutter-gradle-plugin"
-          }
-
-          android {
-              namespace "com.example.expriytracker_new"
-              compileSdkVersion flutter.compileSdkVersion
-              ndkVersion flutter.ndkVersion
-
-              compileOptions {
-                  sourceCompatibility JavaVersion.VERSION_17
-                  targetCompatibility JavaVersion.VERSION_17
-              }
-
-              kotlinOptions {
-                  jvmTarget = '17'
-              }
-
-              defaultConfig {
-                  applicationId "com.example.expriytracker_new"
-                  minSdkVersion flutter.minSdkVersion
-                  targetSdkVersion flutter.targetSdkVersion
-                  versionCode flutter.versionCode
-                  versionName flutter.versionName
-              }
-
-              buildTypes {
-                  release {
-                      signingConfig signingConfigs.debug
-                  }
-              }
-          }
-
-          flutter {
-              source "../.."
-          }
-          EOF
+          # 3. build.gradle
+          echo 'plugins { id "com.android.application"; id "kotlin-android"; id "dev.flutter.flutter-gradle-plugin" }' > android/app/build.gradle
+          echo 'android {' >> android/app/build.gradle
+          echo '    namespace "com.example.expriytracker_new"' >> android/app/build.gradle
+          echo '    compileSdkVersion flutter.compileSdkVersion' >> android/app/build.gradle
+          echo '    ndkVersion flutter.ndkVersion' >> android/app/build.gradle
+          echo '    compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }' >> android/app/build.gradle
+          echo '    kotlinOptions { jvmTarget = "17" }' >> android/app/build.gradle
+          echo '    defaultConfig { applicationId "com.example.expriytracker_new"; minSdkVersion flutter.minSdkVersion; targetSdkVersion flutter.targetSdkVersion; versionCode flutter.versionCode; versionName flutter.versionName }' >> android/app/build.gradle
+          echo '    buildTypes { release { signingConfig signingConfigs.debug } }' >> android/app/build.gradle
+          echo '}' >> android/app/build.gradle
+          echo 'flutter { source "../.." }' >> android/app/build.gradle
 
       - name: Install dependencies
         run: flutter pub get
