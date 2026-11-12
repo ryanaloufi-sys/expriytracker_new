@@ -25,11 +25,10 @@ jobs:
           flutter-version: '3.19.x'
           channel: 'stable'
 
-      - name: Scaffold Complete Android V2 Structure
+      - name: Create Android V2 Structure First
         run: |
           mkdir -p android/app/src/main/kotlin/com/example/expriytracker_new
           
-          # 1. إنشاء ملف AndroidManifest بالدعم الحديث للـ V2
           cat << 'EOF' > android/app/src/main/AndroidManifest.xml
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
               <application
@@ -59,7 +58,6 @@ jobs:
           </manifest>
           EOF
 
-          # 2. إنشاء ملف MainActivity.kt للربط
           cat << 'EOF' > android/app/src/main/kotlin/com/example/expriytracker_new/MainActivity.kt
           package com.example.expriytracker_new
 
@@ -69,7 +67,6 @@ jobs:
           }
           EOF
 
-          # 3. إنشاء ملف إعدادات بناء أندرويد build.gradle
           cat << 'EOF' > android/app/build.gradle
           plugins {
               id "com.android.application"
