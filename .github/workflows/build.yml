@@ -25,58 +25,13 @@ jobs:
           flutter-version: '3.19.x'
           channel: 'stable'
 
-      - name: Force Full Android V2 Environment Setup
+      - name: Fix Android V2 Embedding & Structure
         run: |
-          mkdir -p android/app/src/main/kotlin/com/example/expriytracker_new
+          # حذف أي مجلد أندرويد قديم غير متوافق لتجنب التعارض
+          rm -rf android
           
-          # 1. إنشاء ملف AndroidManifest متوافق تماماً ومفعل فيه الـ V2 والباكج
-          cat << 'EOF' > android/app/src/main/AndroidManifest.xml
-          <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-              package="com.example.expriytracker_new">
-              <application
-                  android:label="expriytracker_new"
-                  android:name="${applicationName}"
-                  android:icon="@mipmap/ic_launcher">
-                  <meta-data
-                      android:name="flutterEmbedding"
-                      android:value="2" />
-                  <activity
-                      android:name=".MainActivity"
-                      android:exported="true"
-                      android:launchMode="singleTop"
-                      android:theme="@style/LaunchTheme"
-                      android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
-                      android:hardwareAccelerated="true"
-                      android:windowSoftInputMode="adjustResize">
-                      <meta-data
-                          android:name="io.flutter.embedding.android.NormalTheme"
-                          android:resource="@style/NormalTheme" />
-                      <intent-filter>
-                          <action android:name="android.intent.action.MAIN"/>
-                          <category android:name="android.intent.category.LAUNCHER"/>
-                      </intent-filter>
-                  </activity>
-              </application>
-          </manifest>
-          EOF
-
-          # 2. إنشاء MainActivity.kt
-          cat << 'EOF' > android/app/src/main/kotlin/com/example/expriytracker_new/MainActivity.kt
-          package com.example.expriytracker_new
-
-          import io.flutter.embedding.android.FlutterActivity
-
-          class MainActivity: FlutterActivity() {
-          }
-          EOF
-
-          # 3. إنشاء ملف local.properties لكي يتعرف فلاتر على بيئة أندرويد فوراً
-          echo "sdk.dir=$ANDROID_HOME" > android/local.properties
-
-          # 4. تفعيل خصائص AndroidX في gradle.properties لتجاوز أي مشاكل قديمة
-          mkdir -p android
-          echo "android.useAndroidX=true" > android/gradle.properties
-          echo "android.enableJetifier=true" >> android/gradle.properties
+          # إعادة إنشاء هيكل أندرويد نظيف وحديث ومتوافق كلياً مع V2 تلقائياً
+          flutter create . --platforms=android --project-name=expriytracker_new
 
       - name: Install dependencies
         run: flutter pub get
