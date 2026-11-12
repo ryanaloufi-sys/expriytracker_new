@@ -25,10 +25,11 @@ jobs:
           flutter-version: '3.19.x'
           channel: 'stable'
 
-      - name: Fix Android Embedding V2 Check
+      - name: Scaffold Complete Android V2 Structure
         run: |
-          mkdir -p android/app/src/main
-          # التأكد من وجود ملف AndroidManifest بالخصائص الصحيحة للـ V2
+          mkdir -p android/app/src/main/kotlin/com/example/expriytracker_new
+          
+          # 1. إنشاء ملف AndroidManifest بالدعم الحديث للـ V2
           cat << 'EOF' > android/app/src/main/AndroidManifest.xml
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
               <application
@@ -56,6 +57,63 @@ jobs:
                   </activity>
               </application>
           </manifest>
+          EOF
+
+          # 2. إنشاء ملف MainActivity.kt للربط
+          cat << 'EOF' > android/app/src/main/kotlin/com/example/expriytracker_new/MainActivity.kt
+          package com.example.expriytracker_new
+
+          import io.flutter.embedding.android.FlutterActivity
+
+          class MainActivity: FlutterActivity() {
+          }
+          EOF
+
+          # 3. إنشاء ملف إعدادات بناء أندرويد build.gradle
+          cat << 'EOF' > android/app/build.gradle
+          plugins {
+              id "com.android.application"
+              id "kotlin-android"
+              id "dev.flutter.flutter-gradle-plugin"
+          }
+
+          android {
+              namespace "com.example.expriytracker_new"
+              compileSdkVersion flutter.compileSdkVersion
+              ndkVersion flutter.ndkVersion
+
+              compileOptions {
+                  sourceCompatibility JavaVersion.VERSION_17
+                  targetCompatibility JavaVersion.VERSION_17
+              }
+
+              kotlinOptions {
+                  jvmTarget = '17'
+              }
+
+              defaultConfig {
+                  applicationId "com.example.expriytracker_new"
+                  minSdkVersion flutter.minSdkVersion
+                  targetSdkVersion flutter.targetSdkVersion
+                  versionCode flutter.versionCode
+                  versionName flutter.versionName
+                  multiDexEnabled true
+              }
+
+              buildTypes {
+                  release {
+                      signingConfig signingConfigs.debug
+                  }
+              }
+          }
+
+          dependencies {
+              implementation 'androidx.multidex:multidex:2.0.1'
+          }
+
+          flutter {
+              source "../.."
+          }
           EOF
 
       - name: Install dependencies
