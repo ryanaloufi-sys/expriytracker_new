@@ -25,22 +25,8 @@ jobs:
           flutter-version: '3.19.x'
           channel: 'stable'
 
-      - name: Fix Android V2 Embedding & Structure
-        run: |
-          # حذف أي مجلد أندرويد قديم غير متوافق لتجنب التعارض
-          rm -rf android
-          
-          # إعادة إنشاء هيكل أندرويد نظيف وحديث ومتوافق كلياً مع V2 تلقائياً
-          flutter create . --platforms=android --project-name=expriytracker_new
-
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Build Android App Bundle
-        run: flutter build appbundle --release
-
-      - name: Upload Generated AAB File
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-release-bundle
-          path: build/app/outputs/bundle/release/app-release.aab
+      - name: Build Android App Bundle (Verbose)
+        run: flutter build appbundle --release --verbose
