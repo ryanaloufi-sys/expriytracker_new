@@ -25,47 +25,12 @@ jobs:
           flutter-version: '3.19.x'
           channel: 'stable'
 
-      - name: Scaffold Android V2 Structure
+      - name: Create Clean Android Platform Structure
         run: |
-          mkdir -p android/app/src/main/kotlin/com/example/expriytracker_new
-          
-          cat << 'EOF' > android/app/src/main/AndroidManifest.xml
-          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-              <application
-                  android:label="expriytracker_new"
-                  android:name="${applicationName}"
-                  android:icon="@mipmap/ic_launcher">
-                  <meta-data
-                      android:name="flutterEmbedding"
-                      android:value="2" />
-                  <activity
-                      android:name=".MainActivity"
-                      android:exported="true"
-                      android:launchMode="singleTop"
-                      android:theme="@style/LaunchTheme"
-                      android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
-                      android:hardwareAccelerated="true"
-                      android:windowSoftInputMode="adjustResize">
-                      <meta-data
-                          android:name="io.flutter.embedding.android.NormalTheme"
-                          android:resource="@style/NormalTheme" />
-                      <intent-filter>
-                          <action android:name="android.intent.action.MAIN"/>
-                          <category android:name="android.intent.category.LAUNCHER"/>
-                      </intent-filter>
-                  </activity>
-              </application>
-          </manifest>
-          EOF
-
-          cat << 'EOF' > android/app/src/main/kotlin/com/example/expriytracker_new/MainActivity.kt
-          package com.example.expriytracker_new
-
-          import io.flutter.embedding.android.FlutterActivity
-
-          class MainActivity: FlutterActivity() {
-          }
-          EOF
+          # مسح أي مجلد أندرويد قديم أو غير مكتمل
+          rm -rf android
+          # توليد هيكل أندرويد حديث ومتوافق تماماً مع V2 وحزم الإشعارات
+          flutter create . --platforms=android --project-name=expriytracker_new
 
       - name: Install dependencies
         run: flutter pub get
