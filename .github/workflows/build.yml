@@ -1,4 +1,4 @@
-name: Build Flutter iOS App
+name: Build Flutter Direct APK
 
 on:
   push:
@@ -6,12 +6,18 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-ios:
-    runs-on: macos-latest
+  build-apk:
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -19,26 +25,48 @@ jobs:
           flutter-version: '3.19.x'
           channel: 'stable'
 
-      - name: Clean and Recreate iOS Platform
+      - name: Clean Project and Recreate Android Platform
         run: |
           flutter clean
-          rm -rf ios
-          flutter create . --platforms=ios --project-name=expriytracker_new
+          rm -rf android
+          flutter create . --platforms=android --project-name=expriytracker_new
+
+      - name: Inject Permissions & Configure Gradle (SDK 34, MultiDex)
+        run: |
+          MANIFEST="android/app/src/main/AndroidManifest.xml"
+          
+          # إضافة الأذونات اللازمة للكاميرا والإشعارات والإنترنت
+          if [ -f "$MANIFEST" ]; then
+            sed -i '/<\/manifest>/i \    <uses-permission android:name="android.permission.CAMERA"/>' "$MANIFEST"
+            sed -i '/<\/manifest>/i \    <uses-permission android:name="android.permission.INTERNET"/>' "$MANIFEST"
+            sed -i '/<\/manifest>/i \    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>' "$MANIFEST"
+            sed -i '/<\/manifest>/i \    <uses-permission android:name="android.permission.VIBRATE"/>' "$MANIFEST"
+          fi
+
+          BUILD_GRADLE="android/app/build.gradle"
+          
+          # ضبط إصدارات الـ SDK
+          sed -i 's/compileSdkVersion flutter.compileSdkVersion/compileSdkVersion 34/g' "$BUILD_GRADLE" || true
+          sed -i 's/targetSdkVersion flutter.targetSdkVersion/targetSdkVersion 34/g' "$BUILD_GRADLE" || true
+          sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 21/g' "$BUILD_GRADLE" || true
+          sed -i 's/minSdkVersion.*/minSdkVersion 21/g' "$BUILD_GRADLE" || true
+          
+          # تفعيل MultiDex
+          sed -i '/defaultConfig {/a \ \ \ \ \ \ multiDexEnabled true' "$BUILD_GRADLE"
+
+          echo "" >> "$BUILD_GRADLE"
+          echo "dependencies {" >> "$BUILD_GRADLE"
+          echo "    implementation 'androidx.multidex:multidex:2.0.1'" >> "$BUILD_GRADLE"
+          echo "}" >> "$BUILD_GRADLE"
 
       - name: Install Dependencies
         run: flutter pub get
 
-      - name: Build iOS App (Release)
-        run: flutter build ios --release --no-codesign
+      - name: Build Android APK (Release)
+        run: flutter build apk --release
 
-      - name: Package iOS App Bundle
-        run: |
-          mkdir -p Payload
-          cp -r build/ios/iphoneos/Runner.app Payload/
-          zip -r ios-app.zip Payload
-
-      - name: Upload iOS Artifact
+      - name: Upload Generated APK File
         uses: actions/upload-artifact@v4
         with:
-          name: ios-release-app
-          path: ios-app.zip
+          name: app-release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
