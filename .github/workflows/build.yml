@@ -31,15 +31,17 @@ jobs:
           rm -rf android
           flutter create . --platforms=android --project-name=expriytracker_new
 
-      - name: Configure Gradle, MinSdk & MultiDex
+      - name: Configure Gradle (SDK 34, MinSdk 21, MultiDex)
         run: |
           BUILD_GRADLE="android/app/build.gradle"
           
-          # ضبط الحد الأدنى للإصدار إلى 21
+          # تحديث إصدارات الـ SDK لتوافق الحزم الحديثة
+          sed -i 's/compileSdkVersion flutter.compileSdkVersion/compileSdkVersion 34/g' "$BUILD_GRADLE" || true
+          sed -i 's/targetSdkVersion flutter.targetSdkVersion/targetSdkVersion 34/g' "$BUILD_GRADLE" || true
           sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 21/g' "$BUILD_GRADLE" || true
           sed -i 's/minSdkVersion.*/minSdkVersion 21/g' "$BUILD_GRADLE" || true
           
-          # تفعيل MultiDex
+          # تفعيل MultiDex لتجاوز قيود حجم الأكواد
           sed -i '/defaultConfig {/a \ \ \ \ \ \ multiDexEnabled true' "$BUILD_GRADLE"
 
           # إضافة مكتبة MultiDex للتبعيات
