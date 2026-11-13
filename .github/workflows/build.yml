@@ -34,11 +34,8 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
-      - name: Build Android App Bundle
-        run: flutter build appbundle --release
+      - name: Analyze Dart Code
+        run: flutter analyze
 
-      - name: Upload Generated AAB File
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-release-bundle
-          path: build/app/outputs/bundle/release/app-release.aab
+      - name: Build Android App Bundle
+        run: flutter build appbundle --release --verbose
