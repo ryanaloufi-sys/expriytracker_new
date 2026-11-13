@@ -31,11 +31,11 @@ jobs:
           rm -rf android
           flutter create . --platforms=android --project-name=expriytracker_new
 
-      - name: Inject Permissions & Configure Gradle (SDK 34, MultiDex)
+      - name: Configure Android Manifest & Gradle Safely
         run: |
           MANIFEST="android/app/src/main/AndroidManifest.xml"
           
-          # إضافة الأذونات اللازمة للكاميرا والإشعارات والإنترنت
+          # إضافة الأذونات اللازمة قبل إغلاق الوسم manifest
           if [ -f "$MANIFEST" ]; then
             sed -i '/<\/manifest>/i \    <uses-permission android:name="android.permission.CAMERA"/>' "$MANIFEST"
             sed -i '/<\/manifest>/i \    <uses-permission android:name="android.permission.INTERNET"/>' "$MANIFEST"
@@ -45,25 +45,17 @@ jobs:
 
           BUILD_GRADLE="android/app/build.gradle"
           
-          # ضبط إصدارات الـ SDK
-          sed -i 's/compileSdkVersion flutter.compileSdkVersion/compileSdkVersion 34/g' "$BUILD_GRADLE" || true
-          sed -i 's/targetSdkVersion flutter.targetSdkVersion/targetSdkVersion 34/g' "$BUILD_GRADLE" || true
-          sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 21/g' "$BUILD_GRADLE" || true
-          sed -i 's/minSdkVersion.*/minSdkVersion 21/g' "$BUILD_GRADLE" || true
-          
-          # تفعيل MultiDex
-          sed -i '/defaultConfig {/a \ \ \ \ \ \ multiDexEnabled true' "$BUILD_GRADLE"
-
-          echo "" >> "$BUILD_GRADLE"
-          echo "dependencies {" >> "$BUILD_GRADLE"
-          echo "    implementation 'androidx.multidex:multidex:2.0.1'" >> "$BUILD_GRADLE"
-          echo "}" >> "$BUILD_GRADLE"
+          # ضبط إصدارات الـ SDK وتفعيل MultiDex بداخل defaultConfig بسلام
+          sed -i 's/minSdkVersion.*/minSdkVersion 21/' "$BUILD_GRADLE" || true
+          sed -i 's/targetSdkVersion.*/targetSdkVersion 34/' "$BUILD_GRADLE" || true
+          sed -i 's/compileSdkVersion.*/compileSdkVersion 34/' "$BUILD_GRADLE" || true
+          sed -i '/defaultConfig {/a \        multiDexEnabled true' "$BUILD_GRADLE"
 
       - name: Install Dependencies
         run: flutter pub get
 
       - name: Build Android APK (Release)
-        run: flutter build apk --release
+        run: flutter build apk --release --verbose
 
       - name: Upload Generated APK File
         uses: actions/upload-artifact@v4
