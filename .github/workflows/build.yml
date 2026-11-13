@@ -51,5 +51,11 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
-      - name: Build Android App Bundle with Stacktrace
-        run: flutter build appbundle --release --verbose --stacktrace
+      - name: Build Android App Bundle
+        run: flutter build appbundle --release --verbose
+
+      - name: Upload Generated AAB File
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-bundle
+          path: build/app/outputs/bundle/release/app-release.aab
