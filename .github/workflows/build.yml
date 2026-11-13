@@ -35,24 +35,21 @@ jobs:
         run: |
           BUILD_GRADLE="android/app/build.gradle"
           
-          # رفع الحد الأدنى للإصدار إلى 21 لتوافق الحزم
+          # ضبط الحد الأدنى للإصدار إلى 21
           sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 21/g' "$BUILD_GRADLE" || true
           sed -i 's/minSdkVersion.*/minSdkVersion 21/g' "$BUILD_GRADLE" || true
           
-          # تفعيل MultiDex لتجاوز قيود حجم التجميع في وضع الـ Release
+          # تفعيل MultiDex
           sed -i '/defaultConfig {/a \ \ \ \ \ \ multiDexEnabled true' "$BUILD_GRADLE"
 
-          # إضافة مكتبة المُلتي-ديكس للتبعيات إذا لزم الأمر
-          echo "dependencies { implementation 'androidx.multidex:multidex:2.0.1' }" >> "$BUILD_GRADLE"
+          # إضافة مكتبة MultiDex للتبعيات
+          echo "" >> "$BUILD_GRADLE"
+          echo "dependencies {" >> "$BUILD_GRADLE"
+          echo "    implementation 'androidx.multidex:multidex:2.0.1'" >> "$BUILD_GRADLE"
+          echo "}" >> "$BUILD_GRADLE"
 
       - name: Install Dependencies
         run: flutter pub get
 
-      - name: Build Android App Bundle
-        run: flutter build appbundle --release
-
-      - name: Upload Generated AAB File
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-release-bundle
-          path: build/app/outputs/bundle/release/app-release.aab
+      - name: Build Android App Bundle with Stacktrace
+        run: flutter build appbundle --release --verbose --stacktrace
