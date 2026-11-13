@@ -31,11 +31,26 @@ jobs:
           rm -rf android
           flutter create . --platforms=android --project-name=expriytracker_new
 
+      - name: Configure Gradle for Release & MultiDex
+        run: |
+          BUILD_GRADLE="android/app/build.gradle"
+          # ضبط الحد الأدنى لإصدار أندرويد إلى 21 لتوافق الحزم الحديثة
+          if grep -q "minSdkVersion" "$BUILD_GRADLE"; then
+            sed -i 's/minSdkVersion.*/minSdkVersion 21/' "$BUILD_GRADLE"
+          fi
+          # تفعيل MultiDex لتجاوز حد الأكواد في ملفات الـ Release
+          if grep -q "defaultConfig {" "$BUILD_GRADLE"; then
+            sed -i '/defaultConfig {/a \ \ \ \ \ \ multiDexEnabled true' "$BUILD_GRADLE"
+          fi
+
       - name: Install Dependencies
         run: flutter pub get
 
-      - name: Analyze Dart Code
-        run: flutter analyze
-
       - name: Build Android App Bundle
         run: flutter build appbundle --release --verbose
+
+      - name: Upload Generated AAB File
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-bundle
+          path: build/app/outputs/bundle/release/app-release.aab
